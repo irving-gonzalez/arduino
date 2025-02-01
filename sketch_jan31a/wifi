@@ -1,0 +1,76 @@
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+
+//matriz de leds 
+#include <Adafruit_GFX.h>
+#include <Adafruit_LEDBackpack.h>
+Adafruit_5x7matrix matrix = Adafruit_5x7matrix(); 
+
+const int trigPin = 12;    // Trigger pin connected to Pin 9
+const int echoPin = 11;   // Echo pin connected to Pin 11
+const int ledPin = LED_BUILTIN; // Built-in LED pin (Pin 13)
+
+long duration;
+int distance;
+
+//internet
+const char* ssid = "your_wifi_ssid";         // Replace with your WiFi SSID
+const char* password = "your_wifi_password"; // Replace with your WiFi Password
+
+
+
+void setup() {
+  Serial.begin(9600);        // Start serial communication
+  pinMode(trigPin, OUTPUT);  // Set trigPin as output
+  pinMode(echoPin, INPUT);   // Set echoPin as input
+  pinMode(ledPin, OUTPUT);   // Set LED pin as output
+
+   WiFi.begin(ssid, password);
+
+    // Wait for WiFi connection
+    Serial.print("Connecting to WiFi");
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+    matrix.begin(0x70);  // Initialize the matrix with the I2C address (0x70 is the default)
+    matrix.clear();      // Clear the matrix initially
+    matrix.writeDisplay();  // Update the matrix
+
+    // Turn on a single LED at position (3, 3)
+    matrix.drawPixel(3, 3, LED_ON);  // (x, y, state) - LED_ON means the LED is ON
+    matrix.writeDisplay();          // Update the display to show the change
+    Serial.println("\nConnected to WiFi!");
+}
+
+void loop() {
+  // Send a 10-microsecond pulse to trigger
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Read the pulse duration from the Echo pin
+  duration = pulseIn(echoPin, HIGH);
+
+  // Calculate the distance (in cm)
+  distance = duration * 0.0344 / 2;
+
+  // Print the distance to the Serial Monitor (for debugging)
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  // If distance is less than 10 cm, blink the LED
+  if (distance < 40) {
+    digitalWrite(ledPin, HIGH);  // Turn LED ON
+    delay(500);  // Wait 500ms
+    digitalWrite(ledPin, LOW);   // Turn LED OFF
+    delay(500);  // Wait 500ms
+  } else {
+    digitalWrite(ledPin, LOW);  // Keep LED OFF if distance is greater than 10 cm
+  }
+
+  delay(200);  // Short delay before next distance measurement
+}
