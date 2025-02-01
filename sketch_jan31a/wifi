@@ -1,5 +1,4 @@
 #include <WiFi.h>
-#include <WiFiClientSecure.h>
 
 //matriz de leds 
 #include <ArduinoGraphics.h>
@@ -18,6 +17,16 @@ int distance;
 const char* ssid = "your_wifi_ssid";         // Replace with your WiFi SSID
 const char* password = "your_wifi_password"; // Replace with your WiFi Password
 
+byte frame[8][12] = {
+  { 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0 },
+  { 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0 },
+  { 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0 },
+  { 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
+  { 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+};
 
 
 void setup() {
@@ -27,12 +36,7 @@ void setup() {
   pinMode(ledPin, OUTPUT);   // Set LED pin as output
 
   matrix.begin();  // Initialize LED matrix
-  matrix.clear();  // Clear any previous display
-
-  // Turn on a single LED at position (3,3)
-  matrix.beginDraw();
-  matrix.drawPixel(3, 3, 255);  // 255 = Full brightness
-  matrix.endDraw();
+  matrix.renderBitmap(frame, 8, 12);
 }
 
 void loop() {
