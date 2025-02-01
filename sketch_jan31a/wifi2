@@ -1,15 +1,15 @@
 #include <WiFi.h>
-#include <WiFiClientSecure.h>
+#include <WiFiS3Client.h>  // Replaced WiFiClientSecure with WiFiS3Client
 
-//matriz de leds 
+// LED Matrix
 #include <ArduinoGraphics.h>
 #include <Arduino_LED_Matrix.h>
 
 ArduinoLEDMatrix matrix;  // Create LED matrix object
 
-const int trigPin = 12;    // Trigger pin connected to Pin 9
-const int echoPin = 11;   // Echo pin connected to Pin 11
-const int ledPin = LED_BUILTIN; // Built-in LED pin (Pin 13)
+const int trigPin = 12;    // Trigger pin connected to Pin 12
+const int echoPin = 11;    // Echo pin connected to Pin 11
+const int ledPin = LED_BUILTIN; // Built-in LED pin
 
 long duration;
 int distance;
@@ -17,11 +17,11 @@ int distance;
 const char* server = "api.twilio.com";
 const int httpsPort = 443;
 
-WiFiClientSecure client;
+WiFiS3Client client;  // Updated to WiFiS3Client
 
-//internet
-const char* ssid = "your_wifi_ssid";         // Replace with your WiFi SSID
-const char* password = "your_wifi_password"; // Replace with your WiFi Password
+// Internet
+const char* ssid = "your_wifi_ssid";
+const char* password = "your_wifi_password";
 
 byte frame[8][12] = {
   { 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0 },
@@ -34,89 +34,57 @@ byte frame[8][12] = {
   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-
 void setup() {
-  Serial.begin(9600);        // Start serial communication
-  pinMode(trigPin, OUTPUT);  // Set trigPin as output
-  pinMode(echoPin, INPUT);   // Set echoPin as input
-  pinMode(ledPin, OUTPUT);   // Set LED pin as output
+  Serial.begin(9600);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(ledPin, OUTPUT);
 
   sendMessage();
 }
 
 void loop() {
-  // Send a 10-microsecond pulse to trigger
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
 
-  // Read the pulse duration from the Echo pin
   duration = pulseIn(echoPin, HIGH);
-
-  // Calculate the distance (in cm)
   distance = duration * 0.0344 / 2;
 
-  // Print the distance to the Serial Monitor (for debugging)
   Serial.print("Distance: ");
   Serial.print(distance);
   Serial.println(" cm");
 
-  // If distance is less than 10 cm, blink the LED
   if (distance < 40) {
-    digitalWrite(ledPin, HIGH);  // Turn LED ON
-    delay(500);  // Wait 500ms
-    digitalWrite(ledPin, LOW);   // Turn LED OFF
-    delay(500);  // Wait 500ms
+    digitalWrite(ledPin, HIGH);
+    delay(500);
+    digitalWrite(ledPin, LOW);
+    delay(500);
   } else {
-    digitalWrite(ledPin, LOW);  // Keep LED OFF if distance is greater than 10 cm
+    digitalWrite(ledPin, LOW);
   }
 
-  delay(200);  // Short delay before next distance measurement
+  delay(200);
 }
 
-void sendMessage(){
+void sendMessage() {
   WiFi.begin(ssid, password);
 
-  // Wait for WiFi connection
   Serial.print("Connecting to WiFi");
   while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
+    delay(500);
+    Serial.print(".");
   }
   Serial.println("\nConnected to WiFi!");
-  frame[0][0] = 1;
 
-  matrix.begin();  // Initialize LED matrix
+  matrix.begin();
   matrix.renderBitmap(frame, 8, 12);
 
-  // Connect to Twilio API
-  client.setInsecure();  // Skip SSL certificate validation (needed for Twilio)
   Serial.println("Connecting to Twilio...");
   if (!client.connect(server, httpsPort)) {
-      Serial.println("Connection failed!");
-      return;
+    Serial.println("Connection failed!");
+    return;
   }
-}
-
-// Function to encode Base64 for HTTP Basic Authentication
-String base64Encode(String input) {
-    static const char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    String encoded = "";
-    int val = 0, valb = -6;
-    
-    for (char c : input) {
-        val = (val << 8) + c;
-        valb += 8;
-        while (valb >= 0) {
-            encoded += base64_table[(val >> valb) & 0x3F];
-            valb -= 6;
-        }
-    }
-    
-    if (valb > -6) encoded += base64_table[((val << 8) >> (valb + 8)) & 0x3F];
-    while (encoded.length() % 4) encoded += '=';
-
-    return encoded;
 }
