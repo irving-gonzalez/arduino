@@ -32,7 +32,7 @@ void loop() {
   Serial.println(" cm");
 
   // If distance is less than 10 cm, blink the LED
-  if (distance < 10) {
+  if (distance < 40) {
     digitalWrite(ledPin, HIGH);  // Turn LED ON
     delay(500);  // Wait 500ms
     digitalWrite(ledPin, LOW);   // Turn LED OFF
