@@ -1,5 +1,5 @@
 #include <WiFi.h>
-#include <WiFiS3Client.h>  // Replaced WiFiClientSecure with WiFiS3Client
+#include <R4HttpClient.h>  // Use R4HttpClient instead of WiFiS3Client
 
 // LED Matrix
 #include <ArduinoGraphics.h>
@@ -17,9 +17,20 @@ int distance;
 const char* server = "api.twilio.com";
 const int httpsPort = 443;
 
-WiFiS3Client client;  // Updated to WiFiS3Client
+R4HttpClient client;  // Use R4HttpClient for HTTP requests
 
-// Internet
+// Twilio credentials for Basic Authentication
+String credentials = "";
+
+// Global variables for phone numbers and message body
+String toNumber = "whatsapp:";
+String fromNumber = "whatsapp:";
+String messageBody = "Hello+from+Twilio";
+
+// Twilio Account SID (global variable)
+String accountSid = "";
+
+// Internet connection details
 const char* ssid = "your_wifi_ssid";
 const char* password = "your_wifi_password";
 
@@ -83,8 +94,37 @@ void sendMessage() {
   matrix.renderBitmap(frame, 8, 12);
 
   Serial.println("Connecting to Twilio...");
-  if (!client.connect(server, httpsPort)) {
+
+  // Create R4HttpClient instance and connect to Twilio
+  if (!client.begin(server, httpsPort)) {
     Serial.println("Connection failed!");
     return;
+  }
+
+  // Prepare the data URL-encoded as specified in the cURL command
+  String url = "/2010-04-01/Accounts/" + accountSid + "/Messages.json";
+  String data = "To=" + toNumber + "&From=" + fromNumber + "&Body=" + messageBody;
+
+  // Set the basic authentication header with Account SID and Auth Token
+  String authHeader = "Basic " + base64::encode(credentials);
+
+  // Set the necessary headers
+  client.addHeader("Authorization", authHeader);
+  client.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  client.addHeader("Content-Length", String(data.length()));
+
+  // Send the POST request
+  int httpResponseCode = client.POST(url, data);
+  
+  if (httpResponseCode > 0) {
+    Serial.print("HTTP Response Code: ");
+    Serial.println(httpResponseCode);
+    
+    // Read the response (optional)
+    String response = client.getString();
+    Serial.println(response);
+  } else {
+    Serial.print("Error on sending POST: ");
+    Serial.println(httpResponseCode);
   }
 }
