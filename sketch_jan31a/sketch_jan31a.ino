@@ -1,17 +1,12 @@
-const int LED_PINS[] = {13, 12, 11, 10};  // Define 4 LED pins
+const int LED_PIN = LED_BUILTIN;  // Built-in LED on pin 13
 
 void setup() {
-  // Set all LED pins as OUTPUT
-  for (int i = 0; i < 4; i++) {
-    pinMode(LED_PINS[i], OUTPUT);
-  }
+  pinMode(LED_PIN, OUTPUT);  // Set LED pin as output
 }
 
 void loop() {
-  // Turn ON all LEDs
-  for (int i = 0; i < 4; i++) {
-    digitalWrite(LED_PINS[i], HIGH);
-  }
-
-  // LEDs stay ON forever
+  digitalWrite(LED_PIN, HIGH);  // Turn LED ON
+  delay(1000);  // Wait 1 second
+  digitalWrite(LED_PIN, LOW);   // Turn LED OFF
+  delay(1000);  // Wait 1 second
 }
