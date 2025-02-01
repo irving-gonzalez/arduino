@@ -17,13 +17,13 @@ int distance;
 const char* server = "api.twilio.com";
 const int httpsPort = 443;
 
-R4HttpClient client(server, httpsPort);  // Directly initialize the R4HttpClient with server and port
+R4HttpClient client;  // Initialize the R4HttpClient object
 
 // Twilio credentials for Basic Authentication
 String credentials = "";
 
 // Global variables for phone numbers and message body
-String toNumber = "whatsapp:";
+String toNumber = "whatsapp:+";
 String fromNumber = "whatsapp:+";
 String messageBody = "Hello+from+Twilio";
 
@@ -94,6 +94,12 @@ void sendMessage() {
   matrix.renderBitmap(frame, 8, 12);
 
   Serial.println("Connecting to Twilio...");
+
+  // Connect to Twilio server
+  if (!client.connect(server, httpsPort)) {
+    Serial.println("Connection failed!");
+    return;
+  }
 
   // Prepare the data URL-encoded as specified in the cURL command
   String url = "/2010-04-01/Accounts/" + accountSid + "/Messages.json";
