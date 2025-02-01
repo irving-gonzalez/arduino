@@ -25,22 +25,13 @@ void setup() {
   pinMode(echoPin, INPUT);   // Set echoPin as input
   pinMode(ledPin, OUTPUT);   // Set LED pin as output
 
-   WiFi.begin(ssid, password);
-
-    // Wait for WiFi connection
-    Serial.print("Connecting to WiFi");
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    matrix.begin(0x70);  // Initialize the matrix with the I2C address (0x70 is the default)
-    matrix.clear();      // Clear the matrix initially
-    matrix.writeDisplay();  // Update the matrix
-
-    // Turn on a single LED at position (3, 3)
-    matrix.drawPixel(3, 3, LED_ON);  // (x, y, state) - LED_ON means the LED is ON
-    matrix.writeDisplay();          // Update the display to show the change
-    Serial.println("\nConnected to WiFi!");
+ matrix.begin(0x70);  // Initialize with I2C address (0x70 is the default)
+  matrix.clear();      // Clear the display
+  
+  // Turn on a single pixel at position (3, 3)
+  matrix.drawPixel(3, 3, LED_ON);  // (x, y, state) - LED_ON means the LED is ON
+  
+  matrix.writeDisplay();  // Update the display
 }
 
 void loop() {
