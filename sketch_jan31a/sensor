@@ -1,0 +1,33 @@
+const int trigPin = 12;   // Trigger pin connected to Pin 9
+const int echoPin = 11;  // Echo pin connected to Pin 11
+
+long duration;
+int distance;
+
+void setup() {
+  Serial.begin(9600);        // Start serial communication
+  pinMode(trigPin, OUTPUT);  // Set trigPin as output
+  pinMode(echoPin, INPUT);   // Set echoPin as input
+}
+
+void loop() {
+  // Send a 10-microsecond pulse to trigger
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Read the pulse duration from the Echo pin
+  duration = pulseIn(echoPin, HIGH);
+
+  // Calculate the distance (in cm)
+  distance = duration * 0.0344 / 2;
+
+  // Print the distance to the Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  delay(500);  // Wait for 500ms before next reading
+}
