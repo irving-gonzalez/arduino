@@ -1,5 +1,6 @@
-const int trigPin = 12;   // Trigger pin connected to Pin 9
-const int echoPin = 11;  // Echo pin connected to Pin 11
+const int trigPin = 12;    // Trigger pin connected to Pin 9
+const int echoPin = 11;   // Echo pin connected to Pin 11
+const int ledPin = LED_BUILTIN; // Built-in LED pin (Pin 13)
 
 long duration;
 int distance;
@@ -8,6 +9,7 @@ void setup() {
   Serial.begin(9600);        // Start serial communication
   pinMode(trigPin, OUTPUT);  // Set trigPin as output
   pinMode(echoPin, INPUT);   // Set echoPin as input
+  pinMode(ledPin, OUTPUT);   // Set LED pin as output
 }
 
 void loop() {
@@ -24,10 +26,20 @@ void loop() {
   // Calculate the distance (in cm)
   distance = duration * 0.0344 / 2;
 
-  // Print the distance to the Serial Monitor
+  // Print the distance to the Serial Monitor (for debugging)
   Serial.print("Distance: ");
   Serial.print(distance);
   Serial.println(" cm");
 
-  delay(500);  // Wait for 500ms before next reading
+  // If distance is less than 10 cm, blink the LED
+  if (distance < 10) {
+    digitalWrite(ledPin, HIGH);  // Turn LED ON
+    delay(500);  // Wait 500ms
+    digitalWrite(ledPin, LOW);   // Turn LED OFF
+    delay(500);  // Wait 500ms
+  } else {
+    digitalWrite(ledPin, LOW);  // Keep LED OFF if distance is greater than 10 cm
+  }
+
+  delay(200);  // Short delay before next distance measurement
 }
