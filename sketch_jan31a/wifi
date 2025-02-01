@@ -18,20 +18,23 @@ const char* ssid = "your_wifi_ssid";         // Replace with your WiFi SSID
 const char* password = "your_wifi_password"; // Replace with your WiFi Password
 
 
-
 void setup() {
   Serial.begin(9600);        // Start serial communication
   pinMode(trigPin, OUTPUT);  // Set trigPin as output
   pinMode(echoPin, INPUT);   // Set echoPin as input
   pinMode(ledPin, OUTPUT);   // Set LED pin as output
 
- matrix.begin(0x70);  // Initialize with I2C address (0x70 is the default)
-  matrix.clear();      // Clear the display
+  matrix.begin(0x70);  // Initialize matrix (check I2C address if needed)
+  matrix.clear();      // Clear any previous display
+
+  // Light up all LEDs for testing
+  for (int x = 0; x < 8; x++) {
+    for (int y = 0; y < 8; y++) {
+      matrix.drawPixel(x, y, LED_ON);
+    }
+  }
   
-  // Turn on a single pixel at position (3, 3)
-  matrix.drawPixel(3, 3, LED_ON);  // (x, y, state) - LED_ON means the LED is ON
-  
-  matrix.writeDisplay();  // Update the display
+  matrix.writeDisplay();  // Update matrix display
 }
 
 void loop() {
