@@ -2,9 +2,10 @@
 #include <WiFiClientSecure.h>
 
 //matriz de leds 
-#include <Adafruit_GFX.h>
-#include <Adafruit_LEDBackpack.h>
-Adafruit_5x7matrix matrix = Adafruit_5x7matrix(); 
+#include <ArduinoGraphics.h>
+#include <Arduino_LED_Matrix.h>
+
+ArduinoLEDMatrix matrix;  // Create LED matrix object
 
 const int trigPin = 12;    // Trigger pin connected to Pin 9
 const int echoPin = 11;   // Echo pin connected to Pin 11
@@ -18,23 +19,20 @@ const char* ssid = "your_wifi_ssid";         // Replace with your WiFi SSID
 const char* password = "your_wifi_password"; // Replace with your WiFi Password
 
 
+
 void setup() {
   Serial.begin(9600);        // Start serial communication
   pinMode(trigPin, OUTPUT);  // Set trigPin as output
   pinMode(echoPin, INPUT);   // Set echoPin as input
   pinMode(ledPin, OUTPUT);   // Set LED pin as output
 
-  matrix.begin(0x70);  // Initialize matrix (check I2C address if needed)
-  matrix.clear();      // Clear any previous display
+  matrix.begin();  // Initialize LED matrix
+  matrix.clear();  // Clear any previous display
 
-  // Light up all LEDs for testing
-  for (int x = 0; x < 8; x++) {
-    for (int y = 0; y < 8; y++) {
-      matrix.drawPixel(x, y, LED_ON);
-    }
-  }
-  
-  matrix.writeDisplay();  // Update matrix display
+  // Turn on a single LED at position (3,3)
+  matrix.beginDraw();
+  matrix.drawPixel(3, 3, 255);  // 255 = Full brightness
+  matrix.endDraw();
 }
 
 void loop() {
